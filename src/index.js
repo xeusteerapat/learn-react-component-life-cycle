@@ -1,23 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import SeasonDisplay from './SeasonDisplay';
+import Spinner from './Spinner';
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = { lat: null, errorMessage: '' };
-
-    window.navigator.geolocation.getCurrentPosition(
-      position => {
-        this.setState({ lat: position.coords.latitude });
-      },
-      error => {
-        this.setState({ errorMessage: error.message });
-      }
-    );
-  }
+  state = { lat: null, errorMessage: '' };
 
   componentDidMount() {
+    window.navigator.geolocation.getCurrentPosition(
+      position => this.setState({ lat: position.coords.latitude }),
+      error => this.setState({ errorMessage: error.message })
+    );
     console.log('My Component was rendered to the screen.');
   }
 
@@ -25,20 +18,21 @@ class App extends React.Component {
     console.log('My Component was just updated - it rerendered');
   }
 
-  render() {
+  // always put conditional render content inside helper function and call later
+  renderContent() {
     if (this.state.errorMessage && !this.state.lat) {
       return <div>Error: {this.state.errorMessage}</div>;
     }
 
     if (!this.state.errorMessage && this.state.lat) {
-      return <div>Latitude: {this.state.lat}</div>;
+      return <SeasonDisplay lat={this.state.lat} />;
     }
 
-    return (
-      <div className="ui active inverted dimmer">
-        <div className="ui text loader">Loading</div>
-      </div>
-    );
+    return <Spinner message="Please accept location request" />;
+  }
+
+  render() {
+    return <div>{this.renderContent()}</div>;
   }
 }
 
